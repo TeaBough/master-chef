@@ -28,6 +28,21 @@ class TestConf1 < Test::Unit::TestCase
 
     files = @vm.capture "ls -1 /etc/logrotate.d/"
     assert_false files.split("\n").include?("todelete")
+
+    memory = @vm.capture("cat /etc/memcached.conf | grep 128")
+    assert_equal "-m 128\n", memory
+
+    ok = @vm.capture("echo -e 'flush_all\nquit' | nc localhost 11211")
+    assert_equal "OK\r\n", ok
+
+    redis_maxclient = @vm.capture("cat /etc/redis/redis.conf | grep maxclients")
+    assert_equal "maxclients 128\n", redis_maxclient
+
+    redis_databases = @vm.capture("cat /etc/redis/redis.conf | egrep ^databases")
+    assert_equal "databases 16\n", redis_databases
+
+    pong = @vm.capture("(echo -en 'PING\r\n'; sleep 1) | nc localhost 6379")
+    assert_equal "+PONG\r\n", pong
   end
 
 end
