@@ -62,7 +62,7 @@ install_master_chef_shell_file() {
 	install_master_chef_file $1 $2
 	exec_command "$SUDO chmod +x $2"
 }
-exec_command "groupadd admin"
+#exec_command "groupadd admin"
 exec_command "cat /etc/passwd | grep ^chef > /dev/null || $SUDO useradd -m -g admin -s /bin/bash chef"
 exec_command "$SUDO cat /etc/sudoers | grep ^chef > /dev/null || $SUDO /bin/sh -c 'echo \"chef   ALL=(ALL) NOPASSWD:ALL\" >> /etc/sudoers'"
 exec_command "$SUDO cat /etc/sudoers | grep ^chef > /dev/null || $SUDO /bin/sh -c 'echo \"chef   ALL=(ALL) NOPASSWD:ALL\" >> /etc/sudoers'"
