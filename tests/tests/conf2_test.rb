@@ -47,6 +47,13 @@ class TestConf2 < Test::Unit::TestCase
     @http.assert_last_response_code 200
     @http.assert_last_response_body_regex /New Job/
 
+    # Check remove apache2 configuration file
+    apache2_conf_file = @vm.capture("ls /etc/apache2/conf.d").split("\n")
+    @vm.run "sudo touch /etc/apache2/conf.d/toDelete"
+    @vm_run_chef
+    new_apache2_conf_file = @vm.capture("ls /etc/apache2/conf.d").split("\n")
+    assert_equal apache2_conf_file, new_apache2_conf_file
+
     # Check APR is loaded into tomcat
     catalina_out = @vm.capture("cat /var/log/tomcat/jenkins/catalina.out")
     assert_not_match /n production environments was not found/, catalina_out
@@ -56,7 +63,7 @@ class TestConf2 < Test::Unit::TestCase
     assert_match /1.7.0_07/, java_version
     @http.get 80, "/jenkins/systemInfo", 'test', 'mypassword'
     @http.assert_last_response_code 200
-    assert_match /1\.7\.0_07/, @http.response.body.gsub(/<wbr>/, '')
+    @http.gsub("<wbr>","").assert_last_response_body_regex /1\.7\.0_07/
 
     # testing ssh_accept_host_key
     @vm.run "ssh-keygen -F localhost"
