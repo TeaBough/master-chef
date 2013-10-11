@@ -3,6 +3,7 @@ require File.join(File.dirname(__FILE__), '..', 'helper.rb')
 class TestConf4 < Test::Unit::TestCase
 
   include VmTestHelper
+  include WaitHelper
 
   def test_conf4
     @vm.upload_json "conf4.json"
@@ -11,13 +12,15 @@ class TestConf4 < Test::Unit::TestCase
     # check mysql listening
     @vm.run "sudo netstat -nltp | grep 0.0.0.0:3306 | grep LISTEN"
 
-    # check tomcat deployment
-    @http.get 8080, "/toto"
-    @http.assert_last_response_code 404
-    assert_match /Coyote/, @http.response["Server"]
-
     # check mysql config
     @vm.run "echo 'SELECT 1;' | mysql --user=toto --password=titi db_test > /dev/null"
+
+    # check tomcat deployment
+    wait "tomcat deployment", 60, 5 do
+        @http.get 8080, "/toto"
+        @http.assert_last_response_code 404
+        assert_match /Coyote/, @http.response["Server"]
+    end
 
     # check apache basic auth
     @http.get 80, "/"
