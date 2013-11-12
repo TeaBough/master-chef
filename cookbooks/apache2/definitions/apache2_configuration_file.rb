@@ -3,7 +3,7 @@ define :apache2_configuration_file, {
   :is_template => false,
   :content => '',
   :source => '',
-  :variables => '',
+  :variables => nil,
   :mode => '644'
 } do
 
